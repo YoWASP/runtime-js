@@ -1,0 +1,33 @@
+{
+    "name": "@yowasp/runtime",
+    "version": "__VERSION__",
+    "description": "Common runtime for YoWASP packages",
+    "author": "Catherine <whitequark@whitequark.org>",
+    "license": "ISC",
+    "homepage": "https://yowasp.org/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/YoWASP/runtime-js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/YoWASP/runtime-js/issues"
+    },
+    "type": "module",
+    "files": [
+        "lib",
+        "bin"
+    ],
+    "exports": {
+        "node": "./lib/api-node.js",
+        "browser": "./lib/api-browser.js"
+    },
+    "bin": {
+        "yowasp-pack-resources": "./bin/pack-resources.js"
+    },
+    "devDependencies": {
+        "eslint": "^8.55.0"
+    },
+    "scripts": {
+        "lint": "eslint lib"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "@yowasp/runtime-test",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+        "@yowasp/runtime": "file:../../"
+    },
+    "devDependencies": {
+        "@bytecodealliance/jco": "^0.14.1"
+    },
+    "scripts": {
+        "build": "./build.sh",
+        "test": "node ./index.js"
+    }
+}

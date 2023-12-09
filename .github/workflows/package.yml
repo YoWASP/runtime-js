@@ -1,0 +1,57 @@
+on: [push, pull_request]
+name: Test & publish
+env:
+  RELEASE_BRANCH: "${{ startsWith(github.event.ref, 'refs/heads/develop-') || startsWith(github.event.ref, 'refs/heads/release-') }}"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Prepare metadata
+        run: node prepare.mjs
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: ./test/run.sh
+      - name: Run lints
+        run: npm run lint
+  check: # group all `test (*)` workflows into one for the required status check
+    needs: test
+    if: always() && !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    steps:
+      - run: ${{ contains(needs.*.result, 'failure') && 'false' || 'true' }}
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out source code
+      uses: actions/checkout@v3
+    - name: Set up node
+      uses: actions/setup-node@v3
+      with:
+        registry-url: 'https://registry.npmjs.org'
+    - name: Prepare metadata
+      run: node prepare.mjs
+    - name: Publish package to NPM
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  release:
+    needs: check
+    runs-on: ubuntu-latest
+    if: "contains(github.event.head_commit.message, 'autorelease') && github.event_name == 'push' && startsWith(github.event.ref, 'refs/heads/develop')"
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PUSH_TOKEN }}
+      - name: Update release branch
+        run: |
+          git push origin develop:release
