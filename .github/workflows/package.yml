@@ -1,7 +1,7 @@
 on: [push, pull_request]
 name: Test & publish
 env:
-  RELEASE_BRANCH: "${{ startsWith(github.event.ref, 'refs/heads/develop-') || startsWith(github.event.ref, 'refs/heads/release-') }}"
+  RELEASE_BRANCH: "${{ github.ref == 'refs/heads/release' }}"
 jobs:
   test:
     runs-on: ubuntu-latest
