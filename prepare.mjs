@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from 'fs';
 
 const revCount = execFileSync('git', ['rev-list', 'HEAD'], {encoding: 'utf-8'}).split('\n').length - 1;
 
-let version = `2.0.${revCount - 1}`;
+let version = `3.0.${revCount - 1}`;
 if (!['true', '1', 'yes'].includes(process.env['RELEASE_BRANCH']))
     version += '-dev';
 console.log(`version ${version}`);
