@@ -25,6 +25,10 @@ Options:
 - The `printLine` option is a function called for each line of text the application prints to the terminal (i.e. standard output and standard error), without the terminating `'\n'` character. The text printed to standard output and standard error is combined as it is being printed (without buffering). The default is `printLine: console.log`.
 - The `decodeASCII` option determines whether the values corresponding to files in `filesOut` are always instances of [Uint8Array][] (if `decodeASCII: false`), or whether the values corresponding to text files will be strings (if `decodeASCII: true`). A file is considered a text file if it contains only bytes in range `0x20` to `0x7f` inclusive. The default is `decodeASCII: true`.
 
+If the application returns a non-zero exit code, the exception `Exit` (exported alongside the `runX` function) is raised. This exception has two properties:
+- The `code` property indicates the exit code. (Currently this is always 1 due to WebAssembly peculiarities.)
+- The `files` property represents the state of the virtual filesystem after the application terminated. This property can be used to retrieve log files or other data aiding in diagnosing the error.
+
 [Uint8Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
 
 
