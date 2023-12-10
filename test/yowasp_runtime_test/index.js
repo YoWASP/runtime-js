@@ -45,3 +45,7 @@ if (!(files5['a.txt'] instanceof Uint8Array && files5['a.txt'].length === 3 &&
     throw 'test 5 failed (1)';
 if (!(files5['b.txt'] instanceof Uint8Array && files5['b.txt'].length === 1 && files5['b.txt'][0] === 1))
     throw 'test 5 failed (2)';
+
+let files6 = await yowaspRuntimeTest.run([], {'sp.txt': '\r\n\t'});
+if (files6['sp.txt'] !== '\r\n\t')
+    throw 'test 6';
