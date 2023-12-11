@@ -3,7 +3,7 @@ import { instantiate } from './gen/copy.js';
 
 
 const yowaspRuntimeTest = new Application(import.meta.url, {
-    'share': './gen/share.json'
+    'share': './gen/share.js'
 }, {
     'copy.core.wasm': './gen/copy.core.wasm',
     'copy.core2.wasm': './gen/copy.core2.wasm',
