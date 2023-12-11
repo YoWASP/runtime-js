@@ -1,6 +1,6 @@
 {
     "name": "@yowasp/runtime",
-    "version": "4.0",
+    "version": "4.1",
     "description": "Common runtime for YoWASP packages",
     "author": "Catherine <whitequark@whitequark.org>",
     "license": "ISC",
