@@ -4,10 +4,8 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 
 function isASCII(buffer) {
     for (const byte of buffer)
-        if ((byte < 0x20 && byte !== 0x09 && byte !== 0x0a && byte !== 0x0d) || byte >= 0x7f) {
-            console.log(byte);
+        if ((byte < 0x20 && byte !== 0x09 && byte !== 0x0a && byte !== 0x0d) || byte >= 0x7f)
             return false;
-        }
     return true;
 }
 
