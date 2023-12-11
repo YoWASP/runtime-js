@@ -2,14 +2,7 @@ import { Application, Exit } from '@yowasp/runtime';
 import { instantiate } from './gen/copy.js';
 
 
-const yowaspRuntimeTest = new Application(import.meta.url, {
-    'share': './gen/share.js'
-}, {
-    'copy.core.wasm': './gen/copy.core.wasm',
-    'copy.core2.wasm': './gen/copy.core2.wasm',
-    'copy.core3.wasm': './gen/copy.core3.wasm',
-    'copy.core4.wasm': './gen/copy.core4.wasm',
-}, instantiate, 'copy');
+const yowaspRuntimeTest = new Application(new URL('./gen/resources.js', import.meta.url), instantiate, 'copy');
 
 
 if ((await yowaspRuntimeTest.run(['share/foo.txt', 'bar.txt'], {}))['bar.txt'] !== 'contents of foo')

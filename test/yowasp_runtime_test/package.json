@@ -10,7 +10,7 @@
         "@bytecodealliance/jco": "^0.14.1"
     },
     "scripts": {
-        "pack": "yowasp-pack-resources share gen/share.js",
+        "pack": "yowasp-pack-resources gen/resources.js gen share",
         "transpile": "jco new ../copy.wasm --wasi-command --output copy.wasm && jco transpile copy.wasm --instantiation async --no-typescript --no-namespaced-exports --map 'wasi:io/*=runtime#io' --map 'wasi:cli/*=runtime#cli' --map 'wasi:clocks/*=runtime#*' --map 'wasi:filesystem/*=runtime#fs' --out-dir gen/",
         "build": "./build.sh",
         "test": "node ./index.js"
