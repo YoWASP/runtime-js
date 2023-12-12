@@ -10,4 +10,4 @@ if (!['true', '1', 'yes'].includes(process.env['RELEASE_BRANCH']))
 console.log(`version ${version}`);
 
 packageJSON.version = version;
-writeFileSync('package.json', JSON.stringify(packageJSON));
+writeFileSync('package.json', JSON.stringify(packageJSON, null, 4));

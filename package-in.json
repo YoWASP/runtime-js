@@ -19,8 +19,10 @@
     ],
     "exports": {
         "node": "./lib/api-node.js",
-        "browser": "./lib/api-browser.js"
+        "browser": "./lib/api-browser.js",
+        "types": "./lib/api.d.ts"
     },
+    "types": "./lib/api.d.ts",
     "bin": {
         "yowasp-pack-resources": "./bin/pack-resources.js"
     },
