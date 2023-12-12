@@ -42,3 +42,7 @@ if (!(files5['b.txt'] instanceof Uint8Array && files5['b.txt'].length === 1 && f
 let files6 = await yowaspRuntimeTest.run([], {'sp.txt': '\r\n\t'});
 if (files6['sp.txt'] !== '\r\n\t')
     throw 'test 6';
+
+let files7 = await yowaspRuntimeTest.run([]);
+if (typeof files7['share'] !== 'undefined')
+    throw 'test 7';
