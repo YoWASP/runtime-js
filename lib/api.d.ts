@@ -10,7 +10,7 @@ export class Exit extends Error {
 export class Application {
     constructor(resourceFileURL: URL | string, instantiate: any, argv0: string);
 
-    run(args: string[], files: Tree, options: {
+    run(args?: string[], files?: Tree, options?: {
         printLine?: (line: string) => void,
         decodeASCII?: boolean
     }): Promise<Tree>;
