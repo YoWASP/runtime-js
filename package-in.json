@@ -1,6 +1,6 @@
 {
     "name": "@yowasp/runtime",
-    "version": "5.0",
+    "version": "6.0",
     "description": "Common runtime for YoWASP packages",
     "author": "Catherine <whitequark@whitequark.org>",
     "license": "ISC",
@@ -18,11 +18,16 @@
         "bin"
     ],
     "exports": {
-        "node": "./lib/api-node.js",
-        "browser": "./lib/api-browser.js",
-        "types": "./lib/api.d.ts"
+        ".": {
+            "node": "./lib/api-node.js",
+            "browser": "./lib/api-browser.js",
+            "types": "./lib/api.d.ts"
+        },
+        "./util": {
+            "default": "./lib/util.js",
+            "types": "./lib/util.d.ts"
+        }
     },
-    "types": "./lib/api.d.ts",
     "bin": {
         "yowasp-pack-resources": "./bin/pack-resources.js"
     },

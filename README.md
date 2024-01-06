@@ -7,13 +7,13 @@ This package is an internal support package for the [YoWASP project][yowasp]. It
 [yowasp]: https://yowasp.github.io/
 
 
-API reference
--------------
+Application API reference
+-------------------------
 
 All of the other JavaScript YoWASP packages re-export the API of the package. They export the function `runX` where `X` is the name of the application, which can be called as:
 
 ```js
-const filesOut = await runX(args, filesIn, { printLine: console.log, decodeASCII: true });
+const filesOut = await runX(args, filesIn, { stdout, stderr, decodeASCII: true });
 ```
 
 Arguments and return value:
@@ -22,7 +22,7 @@ Arguments and return value:
 - The `filesOut` return value is the same kind of object as `filesIn`, representing the state of the virtual filesystem after the application terminated. It contains all of the data provided in `filesIn` as well, unless these files were modified or removed by the application.
 
 Options:
-- The `printLine` option is a function called for each line of text the application prints to the terminal (i.e. standard output and standard error), without the terminating `'\n'` character. The text printed to standard output and standard error is combined as it is being printed (without buffering). The default is `printLine: console.log`.
+- The `stdout` and `stderr` options are functions that are called with a sequence of bytes the application prints to the standard output and standard error streams respectively, or `null` to indicate that the stream is being flushed. If specified as `null`, the output on that stream is ignored. By default, each line of text from the combined streams is printed to the debugging console.
 - The `decodeASCII` option determines whether the values corresponding to files in `filesOut` are always instances of [Uint8Array][] (if `decodeASCII: false`), or whether the values corresponding to text files will be strings (if `decodeASCII: true`). A file is considered a text file if it contains only bytes `0x09`, `0x0a`, `0x0d`, or those in the range `0x20` to `0x7e` inclusive. The default is `decodeASCII: true`.
 
 If the application returns a non-zero exit code, the exception `Exit` (exported alongside the `runX` function) is raised. This exception has two properties:
@@ -30,6 +30,18 @@ If the application returns a non-zero exit code, the exception `Exit` (exported 
 - The `files` property represents the state of the virtual filesystem after the application terminated. This property can be used to retrieve log files or other data aiding in diagnosing the error.
 
 [Uint8Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
+
+
+Utility API reference
+---------------------
+
+This package also exports utilities that are useful when running other JavaScript YoWASP packages. These can be used as:
+
+```js
+import { lineBuffered } from '@yowasp/runtime/util';
+```
+
+- The `lineBuffered(processLine)` function takes a function `processLine(line)` that accepts a line of text (e.g. `console.log`), and returns a function `processBytes(bytes)` that accepts a `Uint8Array` of encoded characters. Each byte sequence ending in the `\n` byte, not including it, is decoded as UTF-8 (invalid sequences are substituted with a replacement character) and passed to `processLine()`.
 
 
 License

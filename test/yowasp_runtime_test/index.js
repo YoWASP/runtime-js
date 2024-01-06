@@ -1,4 +1,5 @@
 import { Application, Exit } from '@yowasp/runtime';
+import { lineBuffered } from '@yowasp/runtime/util';
 import { instantiate } from './gen/copy.js';
 
 
@@ -14,7 +15,7 @@ if ((await yowaspRuntimeTest.run(['baz.txt', 'bar.txt'], {'baz.txt': 'contents o
 let lines = [];
 try {
     await yowaspRuntimeTest.run(['xxx.txt'], {'yyy.txt': 'contents of yyy'}, {
-        printLine(line) { lines.push(line); }
+        stderr: lineBuffered((line) => lines.push(line))
     });
     throw 'test 3 failed (1)';
 } catch (e) {
