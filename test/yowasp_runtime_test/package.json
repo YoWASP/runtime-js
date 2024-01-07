@@ -7,7 +7,7 @@
         "@yowasp/runtime": "file:../../"
     },
     "devDependencies": {
-        "@bytecodealliance/jco": "^0.14.1"
+        "@bytecodealliance/jco": "0.14.2"
     },
     "scripts": {
         "pack": "yowasp-pack-resources gen/resources.js gen share",

@@ -19,8 +19,7 @@
     ],
     "exports": {
         ".": {
-            "node": "./lib/api-node.js",
-            "browser": "./lib/api-browser.js",
+            "default": "./lib/api.js",
             "types": "./lib/api.d.ts"
         },
         "./util": {
