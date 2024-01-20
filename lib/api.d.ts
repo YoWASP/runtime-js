@@ -11,7 +11,7 @@ export class Exit extends Error {
 }
 
 export class Application {
-    constructor(resourceFileURL: URL | string, instantiate: any, argv0: string);
+    constructor(resources: () => Promise<any>, instantiate: any, argv0: string);
 
     run(args?: string[], files?: Tree, options?: {
         stdout?: OutputStream | null,

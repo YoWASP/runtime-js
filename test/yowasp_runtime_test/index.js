@@ -3,7 +3,7 @@ import { lineBuffered } from '@yowasp/runtime/util';
 import { instantiate } from './gen/copy.js';
 
 
-const yowaspRuntimeTest = new Application(new URL('./gen/resources.js', import.meta.url), instantiate, 'copy');
+const yowaspRuntimeTest = new Application(() => import('./gen/resources.js'), instantiate, 'copy');
 
 
 if ((await yowaspRuntimeTest.run(['share/foo.txt', 'bar.txt'], {}))['bar.txt'] !== 'contents of foo')
