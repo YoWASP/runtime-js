@@ -55,8 +55,8 @@ async function packDirectory(root, urlRoot, genRoot, dirPath = '', indent = 0) {
 }
 
 const args = process.argv.slice(2);
-if (args.length !== 3) {
-    console.error(`Usage: yowasp-pack-resources <resources.js> <gen-directory> <share-directory>`);
+if (!(args.length >= 2 && args.length <= 3)) {
+    console.error(`Usage: yowasp-pack-resources <resources.js> <gen-directory> [<share-directory>]`);
     process.exit(1);
 }
 
@@ -64,10 +64,17 @@ const resourceFileName = args[0];
 const genDirectory = args[1];
 const shareDirectory = args[2];
 
-await writeFile(resourceFileName, `\
+let output =  `\
 export const modules = ${(await packModules(genDirectory, './')).flat(Infinity).join('')};
-
+`;
+if (shareDirectory)
+    output += `\
 export const filesystem = {
     share: ${(await packDirectory(shareDirectory, './share', genDirectory, '', 1)).flat(Infinity).join('')}
 };
-`);
+`;
+else
+    output += `\
+export const filesystem = {};
+`;
+await writeFile(resourceFileName, output);
