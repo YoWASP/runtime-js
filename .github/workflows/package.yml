@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18.x'
       - name: Prepare metadata
@@ -24,21 +24,21 @@ jobs:
         run: npm run lint
   check: # group all `test (*)` workflows into one for the required status check
     needs: test
-    if: always() && !contains(needs.*.result, 'cancelled')
+    if: ${{ always() && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-latest
     steps:
       - run: ${{ contains(needs.*.result, 'failure') && 'false' || 'true' }}
   publish:
     needs: check
     runs-on: ubuntu-latest
-    if: "${{ github.event.ref == 'refs/heads/develop' || github.event.ref == 'refs/heads/release' }}"
+    if: ${{ github.event.ref == 'refs/heads/develop' || github.event.ref == 'refs/heads/release' }}
     steps:
     - name: Check out source code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Set up node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         registry-url: 'https://registry.npmjs.org'
     - name: Prepare metadata
@@ -50,10 +50,10 @@ jobs:
   release:
     needs: check
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.message, 'autorelease') && github.event_name == 'push' && github.event.ref == 'refs/heads/develop'
+    if: ${{ contains(github.event.head_commit.message, 'autorelease') && github.event_name == 'push' && github.event.ref == 'refs/heads/develop' }}
     steps:
       - name: Check out source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.PUSH_TOKEN }}
