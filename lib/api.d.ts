@@ -14,7 +14,7 @@ export type RunOptions = {
 export class Application {
     constructor(resources: () => Promise<any>, instantiate: any, argv0: string);
 
-    preload(): Promise;
+    preload(): Promise<void>;
 
     execute(args: string[], files?: Tree, options?: RunOptions): Tree;
 
