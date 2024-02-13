@@ -40,10 +40,11 @@ Utility API reference
 This package also exports utilities that are useful when running other JavaScript YoWASP packages. These can be used as:
 
 ```js
-import { lineBuffered } from '@yowasp/runtime/util';
+import { lineBuffered, chunked } from '@yowasp/runtime/util';
 ```
 
-- The `lineBuffered(processLine)` function takes a function `processLine(line)` that accepts a line of text (e.g. `console.log`), and returns a function `processBytes(bytes)` that accepts a `Uint8Array` of encoded characters. Each byte sequence ending in the `\n` byte, not including it, is decoded as UTF-8 (invalid sequences are substituted with a replacement character) and passed to `processLine()`.
+- The `lineBuffered(processLine)` function takes a function `processLine(line)` that accepts a line of text (e.g. `console.log`), and returns a function `processBytes(bytes)` that accepts a `Uint8Array` of encoded characters (or `null`, which is ignored). Each byte sequence ending in the `\n` byte, not including it, is decoded as UTF-8 (invalid sequences are substituted with a replacement character) and passed to `processLine()`.
+- The `chunked(text)` function takes text and returns a function `getChunk(byteLength)` that slices off a `Uint8Array` of UTF-8 code points of the requested length and returns it. Once it exhausts the input, `getChunk()` returns `null` whenever it is called.
 
 
 License

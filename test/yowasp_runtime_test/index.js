@@ -1,5 +1,5 @@
 import { Application, Exit } from '@yowasp/runtime';
-import { lineBuffered } from '@yowasp/runtime/util';
+import { lineBuffered, chunked } from '@yowasp/runtime/util';
 import { instantiate } from './gen/copy.js';
 
 
@@ -42,13 +42,21 @@ if (!(files5['b.txt'] instanceof Uint8Array && files5['b.txt'].length === 1 && f
 
 let files6 = await yowaspRuntimeTest.run([], {'sp.txt': '\r\n\t'});
 if (files6['sp.txt'] !== '\r\n\t')
-    throw 'test 6';
+    throw 'test 6 failed';
 
 let files7 = await yowaspRuntimeTest.run([]);
 if (typeof files7['share'] !== 'undefined')
-    throw 'test 7';
+    throw 'test 7 failed';
+
+lines = [];
+await yowaspRuntimeTest.run([], {}, {
+    stdin: chunked('some text\n'),
+    stdout: lineBuffered((line) => lines.push(line))
+});
+if (!(lines.length === 1 || lines[0] === 'some text'))
+    throw 'test 8 failed';
 
 await yowaspRuntimeTest.preload();
 
 if ((yowaspRuntimeTest.execute(['share/foo.txt', 'foo.txt'], {}))['foo.txt'] !== 'contents of foo')
-    throw 'test 8 failed';
+    throw 'test 9 failed';
