@@ -5,17 +5,23 @@ export type Tree = {
 export type OutputStream =
     (bytes: Uint8Array | null) => void;
 
-export class Exit extends Error {
-    code: number;
-    files: Tree;
-}
+export type RunOptions = {
+    stdout?: OutputStream | null,
+    stderr?: OutputStream | null,
+    decodeASCII?: boolean
+};
 
 export class Application {
     constructor(resources: () => Promise<any>, instantiate: any, argv0: string);
 
-    run(args?: string[], files?: Tree, options?: {
-        stdout?: OutputStream | null,
-        stderr?: OutputStream | null,
-        decodeASCII?: boolean
-    }): Promise<Tree>;
+    preload(): Promise;
+
+    execute(args: string[], files?: Tree, options?: RunOptions): Tree;
+
+    run(args?: string[], files?: Tree, options?: RunOptions): Tree | Promise<Tree> | undefined;
+}
+
+export class Exit extends Error {
+    code: number;
+    files: Tree;
 }

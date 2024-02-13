@@ -47,3 +47,8 @@ if (files6['sp.txt'] !== '\r\n\t')
 let files7 = await yowaspRuntimeTest.run([]);
 if (typeof files7['share'] !== 'undefined')
     throw 'test 7';
+
+await yowaspRuntimeTest.preload();
+
+if ((yowaspRuntimeTest.execute(['share/foo.txt', 'foo.txt'], {}))['foo.txt'] !== 'contents of foo')
+    throw 'test 8 failed';

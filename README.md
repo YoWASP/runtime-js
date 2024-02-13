@@ -1,7 +1,7 @@
 YoWASP JavaScript runtime
 =========================
 
-This package is an internal support package for the [YoWASP project][yowasp]. It handles interfacing with the [WebAssembly][] runtime and the supported execution environments (Node.js and the browser). Do not depend on this package in your own code.
+This package is an internal support package for the [YoWASP project][yowasp]. It handles interfacing with the [WebAssembly][] runtime and the supported execution environments (Node.js and the browser). If you are writing code that is not part of the YoWASP project, you should only use functions from the `@yowasp/runtime/util` module.
 
 [webassembly]: https://webassembly.org/
 [yowasp]: https://yowasp.github.io/
@@ -10,7 +10,7 @@ This package is an internal support package for the [YoWASP project][yowasp]. It
 Application API reference
 -------------------------
 
-All of the other JavaScript YoWASP packages re-export the API of the package. They export the function `runX` where `X` is the name of the application, which can be called as:
+All of the other JavaScript YoWASP packages use the common runtime functionality implemented here. They export the function `runX` where `X` is the name of the application, which can be called as:
 
 ```js
 const filesOut = await runX(args, filesIn, { stdout, stderr, decodeASCII: true });
@@ -28,6 +28,8 @@ Options:
 If the application returns a non-zero exit code, the exception `Exit` (exported alongside the `runX` function) is raised. This exception has two properties:
 - The `code` property indicates the exit code. (Currently this is always 1 due to WebAssembly peculiarities.)
 - The `files` property represents the state of the virtual filesystem after the application terminated. This property can be used to retrieve log files or other data aiding in diagnosing the error.
+
+While in general the `runX` function returns a promise, there are two special cases. Calling `runX()` (with no arguments) does not run the application, but preloads and caches, in memory, all of the necessary resources. Calling `runX([...])` (with arguments) after that executes the application synchronously instead of returning a promise.
 
 [Uint8Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
 
