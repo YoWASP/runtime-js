@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
+import { readdir, readlink, readFile, writeFile, mkdir } from 'fs/promises';
 
 async function packModules(root, urlRoot) {
     const files =  await readdir(root, { withFileTypes: true });
@@ -45,6 +45,9 @@ async function packDirectory(root, urlRoot, genRoot, dirPath = '', indent = 0) {
                 await writeFile(`${genRoot}/${urlRoot}/${filePath}`, fileData);
                 packedData.push(`new URL(${JSON.stringify(urlRoot + filePath)}, import.meta.url)`);
             }
+        } else if (file.isSymbolicLink()) {
+            const linkPath = await readlink(`${root}/${filePath}`);
+            packedData.push(await packDirectory(root, urlRoot, genRoot, linkPath, indent + 1));
         } else {
             packedData.push('null');
         }
