@@ -22,7 +22,7 @@ async function packDirectory(root, urlRoot, genRoot, dirPath = '', indent = 0) {
     for (const file of files) {
         packedData.push(`${'    '.repeat(indent + 1)}${JSON.stringify(file.name)}: `);
         const filePath = `${dirPath}/${file.name}`;
-        if (file.isDirectory()) {
+        if (file.isDirectory() || file.isSymbolicLink()) {
             packedData.push(await packDirectory(root, urlRoot, genRoot, filePath, indent + 1));
         } else if (file.isFile()) {
             const fileData = await readFile(`${root}/${filePath}`);
@@ -45,9 +45,6 @@ async function packDirectory(root, urlRoot, genRoot, dirPath = '', indent = 0) {
                 await writeFile(`${genRoot}/${urlRoot}/${filePath}`, fileData);
                 packedData.push(`new URL(${JSON.stringify(urlRoot + filePath)}, import.meta.url)`);
             }
-        } else if (file.isSymbolicLink()) {
-            const linkPath = await readlink(`${root}/${filePath}`);
-            packedData.push(await packDirectory(root, urlRoot, genRoot, linkPath, indent + 1));
         } else {
             packedData.push('null');
         }
