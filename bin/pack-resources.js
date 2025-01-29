@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readdir, readlink, readFile, writeFile, mkdir } from 'fs/promises';
+import { readdir, readFile, writeFile, mkdir, stat } from 'fs/promises';
 
 async function packModules(root, urlRoot) {
     const files =  await readdir(root, { withFileTypes: true });
@@ -22,9 +22,10 @@ async function packDirectory(root, urlRoot, genRoot, dirPath = '', indent = 0) {
     for (const file of files) {
         packedData.push(`${'    '.repeat(indent + 1)}${JSON.stringify(file.name)}: `);
         const filePath = `${dirPath}/${file.name}`;
-        if (file.isDirectory() || file.isSymbolicLink()) {
+        const fileStats = await stat(`${root}/${dirPath}/${filePath}`);
+        if (fileStats.isDirectory()) {
             packedData.push(await packDirectory(root, urlRoot, genRoot, filePath, indent + 1));
-        } else if (file.isFile()) {
+        } else if (fileStats.isFile()) {
             const fileData = await readFile(`${root}/${filePath}`);
             let emittedAsText = false;
             if (fileData.length < 131072) { // emit as a separate file if >128K
