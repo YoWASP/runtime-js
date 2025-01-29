@@ -22,7 +22,7 @@ async function packDirectory(root, urlRoot, genRoot, dirPath = '', indent = 0) {
     for (const file of files) {
         packedData.push(`${'    '.repeat(indent + 1)}${JSON.stringify(file.name)}: `);
         const filePath = `${dirPath}/${file.name}`;
-        const fileStats = await stat(`${root}/${dirPath}/${filePath}`);
+        const fileStats = await stat(`${root}/${filePath}`);
         if (fileStats.isDirectory()) {
             packedData.push(await packDirectory(root, urlRoot, genRoot, filePath, indent + 1));
         } else if (fileStats.isFile()) {
