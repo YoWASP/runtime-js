@@ -31,6 +31,9 @@ jobs:
   publish:
     needs: check
     runs-on: ubuntu-latest
+    environment: publish
+    permissions:
+      id-token: write
     if: ${{ github.event.ref == 'refs/heads/develop' || github.event.ref == 'refs/heads/release' }}
     steps:
     - name: Check out source code
@@ -40,13 +43,14 @@ jobs:
     - name: Set up node
       uses: actions/setup-node@v4
       with:
+        node-version: '20'
         registry-url: 'https://registry.npmjs.org'
+    - name: Update npm
+      run: npm install -g npm@latest
     - name: Prepare metadata
       run: node prepare.mjs
     - name: Publish package to NPM
-      run: npm publish --access public
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: npm publish --tag latest
   release:
     needs: check
     runs-on: ubuntu-latest
