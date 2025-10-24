@@ -9,7 +9,7 @@ export type OutputStream =
     (bytes: Uint8Array | null) => void;
 
 export type ProgressCallback =
-    ({ source: Application, totalLength: number, doneLength: number }) => void;
+    (event: { source: Application, totalLength: number, doneLength: number }) => void;
 
 export type RunOptions = {
     stdin?:  InputStream  | null;
