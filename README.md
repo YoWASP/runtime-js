@@ -13,7 +13,7 @@ Application API reference
 All of the other JavaScript YoWASP packages use the common runtime functionality implemented here. They export the function `runX` where `X` is the name of the application, which can be called as:
 
 ```js
-const filesOut = await runX(args, filesIn, { stdout, stderr, decodeASCII: true, fetchProgress });
+const filesOut = await runX(args, filesIn, { stdin, stdout, stderr, decodeASCII: true, fetchProgress });
 ```
 
 Arguments and return value:
@@ -22,7 +22,8 @@ Arguments and return value:
 - The `filesOut` return value is the same kind of object as `filesIn`, representing the state of the virtual filesystem after the application terminated. It contains all of the data provided in `filesIn` as well, unless these files were modified or removed by the application.
 
 Options:
-- The `stdout` and `stderr` options are functions that are called with a sequence of bytes the application prints to the standard output and standard error streams respectively, or `null` to indicate that the stream is being flushed. If specified as `null`, the output on that stream is ignored. By default, each line of text from the combined streams is printed to the debugging console.
+- The `stdin(byteLength)` option is a function that is called with a number of bytes the application requests from the standard input. It must return an `Uint8Array` of up to the requested number of bytes in length, or `null` to indicate an end-of-file condition. Whether a stream that has indicated an end-of-file condition will ever be read from again is application-specific.
+- The `stdout(bytes)` and `stderr(bytes)` options are functions that are called with a sequence of bytes the application prints to the standard output and standard error streams respectively, or `null` to indicate that the stream is being flushed. If specified as `null`, the output on that stream is ignored. By default, each line of text from the combined streams is printed to the debugging console.
 - The `decodeASCII` option determines whether the values corresponding to files in `filesOut` are always instances of [Uint8Array][] (if `decodeASCII: false`), or whether the values corresponding to text files will be strings (if `decodeASCII: true`). A file is considered a text file if it contains only bytes `0x09`, `0x0a`, `0x0d`, or those in the range `0x20` to `0x7e` inclusive. The default is `decodeASCII: true`.
 - The `fetchProgress({ source, totalLength, doneLength })` option provides a callback to monitor download progress. The `source` is the `Application` object whose assets are being downloaded; `totalLength` and `doneLength` are in bytes. Note that if the server does not send the `Content-Length` header for *any* of the assets, `totalLength` will be `NaN`. By default, download progress is printed to the debugging console.
 
