@@ -1,6 +1,6 @@
 {
     "name": "@yowasp/runtime",
-    "version": "9.0",
+    "version": "10.0",
     "description": "Common runtime for YoWASP packages",
     "author": "Catherine <whitequark@whitequark.org>",
     "license": "ISC",
@@ -30,8 +30,11 @@
     "bin": {
         "yowasp-pack-resources": "./bin/pack-resources.js"
     },
+    "dependencies": {
+        "nanotar": "^0.2.0"
+    },
     "devDependencies": {
-        "eslint": "^8.55.0"
+        "eslint": "^9.38.0"
     },
     "scripts": {
         "lint": "eslint lib"

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { readdir, readFile, writeFile, mkdir, stat } from 'fs/promises';
+import { readdir, readFile, writeFile, stat } from 'fs/promises';
+import { createTar } from 'nanotar';
 
 async function packModules(root, urlRoot) {
     const files =  await readdir(root, { withFileTypes: true });
@@ -16,42 +17,21 @@ async function packModules(root, urlRoot) {
     return packedData;
 }
 
-async function packDirectory(root, urlRoot, genRoot, dirPath = '', indent = 0) {
-    const files =  await readdir(`${root}/${dirPath}`, { withFileTypes: true });
-    const packedData = [`{\n`];
+async function collectDirectory(root, dirPath = '', packedData = []) {
+    const files = await readdir(`${root}/${dirPath}`, { withFileTypes: true });
     for (const file of files) {
-        packedData.push(`${'    '.repeat(indent + 1)}${JSON.stringify(file.name)}: `);
-        const filePath = `${dirPath}/${file.name}`;
+        const filePath = dirPath === '' ? file.name : `${dirPath}/${file.name}`;
         const fileStats = await stat(`${root}/${filePath}`);
         if (fileStats.isDirectory()) {
-            packedData.push(await packDirectory(root, urlRoot, genRoot, filePath, indent + 1));
+            packedData.push({name: filePath});
+            await collectDirectory(root, filePath, packedData);
         } else if (fileStats.isFile()) {
-            const fileData = await readFile(`${root}/${filePath}`);
-            let emittedAsText = false;
-            if (fileData.length < 131072) { // emit as a separate file if >128K
-                try {
-                    const textData = new TextDecoder('utf-8', { fatal: true }).decode(fileData);
-                    packedData.push(JSON.stringify(textData));
-                    emittedAsText = true;
-                } catch(e) {
-                    if (e instanceof TypeError) {
-                        emittedAsText = false;
-                    } else {
-                        throw e;
-                    }
-                }
-            }
-            if (!emittedAsText) {
-                await mkdir(`${genRoot}/${urlRoot}/${dirPath}`, { recursive: true });
-                await writeFile(`${genRoot}/${urlRoot}/${filePath}`, fileData);
-                packedData.push(`new URL(${JSON.stringify(urlRoot + filePath)}, import.meta.url)`);
-            }
+            packedData.push({name: filePath, data: await readFile(`${root}/${filePath}`)});
         } else {
-            packedData.push('null');
+            console.error(`Unsupported '${filePath}'!`);
+            process.exit(2);
         }
-        packedData.push(`,\n`);
     }
-    packedData.push(`${'    '.repeat(indent)}}`);
     return packedData;
 }
 
@@ -61,22 +41,50 @@ if (!(args.length >= 2 && args.length <= 4)) {
     process.exit(1);
 }
 
-const resourceFileName = args[0];
+const resourceFilePath = args[0];
 const genDirectory = args[1];
 const shareDirectory = args[2];
 const shareRoot = args[3] || 'share';
 
-let output =  `\
-export const modules = ${(await packModules(genDirectory, './')).flat(Infinity).join('')};
+let output = `\
+import { parseTar } from 'nanotar';
+
+function unpackResources(url) {
+    function defaultFetchFn(url) {
+        return fetch(url).then((resp) => resp.arrayBuffer());
+    }
+
+    return async (fetchFn = defaultFetchFn) => {
+        const root = {};
+        for (const tarEntry of parseTar(await fetchFn(url))) {
+            const nameParts = tarEntry.name.split('/');
+            const dirNames = nameParts.slice(0, -1);
+            const fileName = nameParts[nameParts.length - 1];
+            let dir = root;
+            for (const dirName of dirNames)
+                dir = dir[dirName];
+            if (tarEntry.type === 'directory') {
+                dir[fileName] = {};
+            } else {
+                dir[fileName] = tarEntry.data;
+            }
+        }
+        return root;
+    };
+}
+
 `;
-if (shareDirectory)
-    output += `\
-export const filesystem = {
-    ${shareRoot}: ${(await packDirectory(shareDirectory, `./${shareRoot}`, genDirectory, '', 1)).flat(Infinity).join('')}
-};
-`;
-else
-    output += `\
-export const filesystem = {};
-`;
-await writeFile(resourceFileName, output);
+const moduleObject = (await packModules(genDirectory, './')).flat(Infinity).join('');
+output += `export const modules = ${moduleObject};\n\n`;
+if (shareDirectory) {
+    const tarFilePath = resourceFilePath.replace(/\.js$/, '.tar');
+    await writeFile(tarFilePath, createTar(await collectDirectory(shareDirectory)));
+    const tarFileName = tarFilePath.replace(/^.+\//, '');
+    const resourceObject = `unpackResources(new URL('./${tarFileName}', import.meta.url))`;
+    output += `export const filesystem = {\n`;
+    output += `    ${shareRoot}: ${resourceObject},\n`;
+    output += `};\n`;
+} else {
+    output += `export const filesystem = {};\n`;
+}
+await writeFile(resourceFilePath, output);
