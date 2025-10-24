@@ -8,15 +8,21 @@ export type InputStream =
 export type OutputStream =
     (bytes: Uint8Array | null) => void;
 
+export type ProgressCallback =
+    ({ source: Application, totalLength: number, doneLength: number }) => void;
+
 export type RunOptions = {
     stdin?:  InputStream  | null;
     stdout?: OutputStream | null;
     stderr?: OutputStream | null;
     decodeASCII?: boolean;
     synchronously?: boolean;
+    fetchProgress?: ProgressCallback;
 };
 
 export class Application {
+    argv0: string;
+
     constructor(resources: () => Promise<any>, instantiate: any, argv0: string);
 
     run(args?: string[], files?: Tree, options?: RunOptions): Promise<Tree> | Tree | undefined;
