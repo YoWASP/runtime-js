@@ -73,12 +73,11 @@ const filesystem = async (fetch) => ({
 if (shareDirectory !== undefined) {
     const tarEntries = [];
     for (const dirent of await readdir(shareDirectory, { withFileTypes: true, recursive: true })) {
+        const name = `${dirent.parentPath}/${dirent.name}`.replace(`${shareDirectory}/`, '');
         if (dirent.isDirectory()) {
-            tarEntries.push({name: dirent.name});
+            tarEntries.push({name: name});
         } else if (dirent.isFile()) {
-            const name = `${dirent.parentPath}/${dirent.name}`.replace(`${shareDirectory}/`, '');
-            const data = await readFile(`${dirent.parentPath}/${dirent.name}`);
-            tarEntries.push({name, data});
+            tarEntries.push({name, data: await readFile(`${dirent.parentPath}/${dirent.name}`)});
         } else {
             console.error(`Unsupported type of '${dirent.name}'!`);
             process.exit(2);
