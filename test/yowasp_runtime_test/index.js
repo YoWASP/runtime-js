@@ -1,13 +1,15 @@
 import { Application, Exit } from '@yowasp/runtime';
+import * as resources from './gen/resources.js';
 import { lineBuffered, chunked } from '@yowasp/runtime/util';
 import { instantiate } from './gen/copy.js';
 
-
-const yowaspRuntimeTest = new Application(() => import('./gen/resources.js'), instantiate, 'copy');
+const yowaspRuntimeTest = new Application(resources, instantiate, 'copy');
 
 
 if ((await yowaspRuntimeTest.run(['share/foo.txt', 'bar.txt'], {}))['bar.txt'] !== 'contents of foo')
-    throw 'test 1 failed';
+    throw 'test 1 failed (1)';
+if ((await yowaspRuntimeTest.run(['share/bar/baz.txt', 'bar.txt'], {}))['bar.txt'] !== 'meow\n')
+    throw 'test 1 failed (2)';
 
 if ((await yowaspRuntimeTest.run(['baz.txt', 'bar.txt'], {'baz.txt': 'contents of baz'}))['bar.txt'] !== 'contents of baz')
     throw 'test 2 failed';
