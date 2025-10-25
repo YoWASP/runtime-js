@@ -12,6 +12,10 @@ if ((await yowaspRuntimeTest.run(['share/bar/baz.txt', 'bar.txt'], {}))['bar.txt
     throw 'test 1 failed (2)';
 if ((await yowaspRuntimeTest.run(['share/bar/cat/stat.txt', 'bar.txt'], {}))['bar.txt'] !== 'im drumnk\n')
     throw 'test 1 failed (3)';
+if ((await yowaspRuntimeTest.run(['share/sym.txt', 'bar.txt'], {}))['bar.txt'] !== 'meow\n')
+    throw 'test 1 failed (4)';
+if ((await yowaspRuntimeTest.run(['share/cat/stat.txt', 'bar.txt'], {}))['bar.txt'] !== 'im drumnk\n')
+    throw 'test 1 failed (5)';
 
 if ((await yowaspRuntimeTest.run(['baz.txt', 'bar.txt'], {'baz.txt': 'contents of baz'}))['bar.txt'] !== 'contents of baz')
     throw 'test 2 failed';

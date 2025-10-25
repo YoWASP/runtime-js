@@ -72,18 +72,22 @@ const filesystem = async (fetch) => ({
 
 if (shareDirectory !== undefined) {
     const tarEntries = [];
-    for (const dirent of await readdir(shareDirectory, { withFileTypes: true, recursive: true })) {
-        const name = `${dirent.parentPath}/${dirent.name}`.replace(`${shareDirectory}/`, '');
-        if (dirent.isDirectory()) {
-            tarEntries.push({name: name});
-        } else if (dirent.isFile()) {
-            tarEntries.push({name, data: await readFile(`${dirent.parentPath}/${dirent.name}`)});
+    async function archivePath(pathName) {
+        const pathStat = await stat(pathName);
+        const tarName = pathName.replace(`${shareDirectory}/`, '');
+        if (pathStat.isDirectory()) {
+            if (pathName !== shareDirectory)
+                tarEntries.push({name: tarName});
+            for (const name of await readdir(pathName))
+                await archivePath(`${pathName}/${name}`);
+        } else if (pathStat.isFile()) {
+            tarEntries.push({name: tarName, data: await readFile(pathName)});
         } else {
-            console.error(`Unsupported type of '${dirent.name}'!`);
+            console.error(`Unsupported type of '${pathName}'!`);
             process.exit(2);
         }
     }
-
+    await archivePath(shareDirectory);
     const tarData = createTar(tarEntries);
     const tarFilePath = resourceFilePath.replace(/\.js$/, '.tar');
     await writeFile(tarFilePath, tarData);
