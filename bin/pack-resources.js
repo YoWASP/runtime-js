@@ -71,14 +71,11 @@ const filesystem = async (fetch) => {
     var chunks = [];
 `;
 
-function chunks(data, length) {
-    var rest = data;
-    var chunks = [];
-    while(rest.length != 0) {
-        chunks.push(rest.subarray(0, length));
-        rest = rest.subarray(length);
+function* chunks(data, length) {
+    while (data.length != 0) {
+        yield data.subarray(0, length);
+        data = data.subarray(length);
     }
-    return chunks;
 }
 
 if (shareDirectory !== undefined) {
