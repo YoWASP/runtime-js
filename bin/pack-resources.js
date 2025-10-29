@@ -67,8 +67,19 @@ for (const dirent of await readdir(wasmDirectory, { withFileTypes: true })) {
 output += `\
 });
 
-const filesystem = async (fetch) => ({
+const filesystem = async (fetch) => {
+    var chunks = [];
 `;
+
+function chunks(data, length) {
+    var rest = data;
+    var chunks = [];
+    while(rest.length != 0) {
+        chunks.push(rest.subarray(0, length));
+        rest = rest.subarray(length);
+    }
+    return chunks;
+}
 
 if (shareDirectory !== undefined) {
     const tarEntries = [];
@@ -89,19 +100,25 @@ if (shareDirectory !== undefined) {
     }
     await archivePath(shareDirectory);
     const tarData = createTar(tarEntries);
-    const tarFilePath = resourceFilePath.replace(/\.js$/, '.tar');
-    await writeFile(tarFilePath, tarData);
-
-    const tarFileName = tarFilePath.replace(/^.+\//, '');
+    var i = 0;
+    for(const chunk of chunks(tarData, 50*1024*1024)) {
+        const tarFileChunkPath = resourceFilePath.replace(/\.js$/, `.${i}.tar`);
+        await writeFile(tarFileChunkPath, chunk);
+        const tarFileChunkName = tarFileChunkPath.replace(/^.+\//, '');
+        output += `\
+    chunks.push(await ${await fetchExpr(tarFileChunkPath, `./${tarFileChunkName}`)}.then((resp) => resp.arrayBuffer()));
+`
+        i += 1;
+    }
     output += `\
-    ${JSON.stringify(shareRoot)}: await ${await fetchExpr(tarFilePath, `./${tarFileName}`)}
-        .then((resp) => resp.arrayBuffer())
-        .then(unpackTarFilesystem)
+    return {
+        ${JSON.stringify(shareRoot)}: await new Blob(chunks).arrayBuffer().then(unpackTarFilesystem)
+    };
 `;
 }
 
 output += `\
-});
+};
 
 const totalSize = ${totalSize};
 
